@@ -17,6 +17,8 @@ public class StarGame extends ApplicationAdapter {
 	}
 
 	@Override
+	//ДЗ1 Подобрать картинку для фона, сделать её размеры кратными степени 2
+	// (например 2048x1024 или 2048x2048) и добавить фон в игру
 	public void render () {
 		Gdx.gl.glClearColor(0, 0, 0, 1);
 		Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);
