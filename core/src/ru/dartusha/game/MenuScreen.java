@@ -25,7 +25,7 @@ public class MenuScreen extends BaseScreen {
 
     /*
     2.Реализовать движение логотипа badlogic (можно свою картинку вставить)
-    при нажатии клавиши мыши (touchDown) в точку нажатия на экране и остановку в данной точке.
+    при нажатии кнопки мыши (touchDown) в точку нажатия на экране и остановку в данной точке.
      */
     @Override
     public void render(float delta) {
