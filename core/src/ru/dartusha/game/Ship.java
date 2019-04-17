@@ -2,7 +2,12 @@ package ru.dartusha.game;
 
 import com.badlogic.gdx.graphics.g2d.TextureAtlas;
 import com.badlogic.gdx.math.Vector2;
-
+/*
+ДЗ 4
+Реализовать звёзды на игровом экране
+Реализовать спрайт корабля
+*Cделать управление кораблём
+ */
 public class Ship extends Sprite {
 
     private Vector2 v;
