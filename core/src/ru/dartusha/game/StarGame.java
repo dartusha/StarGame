@@ -8,12 +8,10 @@ import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 
 public class StarGame extends Game {
-	SpriteBatch batch;
-	Texture img;
 
 	@Override
 	public void create() {
-		setScreen(new MenuScreen());
+		setScreen(new MenuScreen(this));
 	}
 
 }

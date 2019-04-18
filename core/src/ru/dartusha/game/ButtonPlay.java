@@ -1,0 +1,35 @@
+package ru.dartusha.game;
+
+import com.badlogic.gdx.Game;
+import com.badlogic.gdx.graphics.g2d.TextureAtlas;
+import com.badlogic.gdx.math.Vector2;
+import com.badlogic.gdx.scenes.scene2d.actions.DelayAction;
+
+public class ButtonPlay extends ScaledTouchUpButton {
+
+    private Game game;
+
+    public ButtonPlay(TextureAtlas atlas, Game game) {
+        super(atlas.findRegion("btPlay"));
+        this.game = game;
+        setHeightProportion(0.19f);
+    }
+
+    @Override
+    public void resize(Rect worldBounds) {
+        super.resize(worldBounds);
+        setBottom(worldBounds.getBottom() + 0.02f);
+        setLeft(worldBounds.getLeft() + 0.02f);
+    }
+
+    @Override
+    protected void action() {
+        game.setScreen(new GameScreen());
+    }
+
+    public void touch(Vector2 touch, int pointer, Ship ship) {
+        if (super.touchDown(touch,pointer))
+        ship.goUp();
+       // super.touchDown(touch,pointer);
+    }
+}
