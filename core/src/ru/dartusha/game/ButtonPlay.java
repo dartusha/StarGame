@@ -3,7 +3,6 @@ package ru.dartusha.game;
 import com.badlogic.gdx.Game;
 import com.badlogic.gdx.graphics.g2d.TextureAtlas;
 import com.badlogic.gdx.math.Vector2;
-import com.badlogic.gdx.scenes.scene2d.actions.DelayAction;
 
 public class ButtonPlay extends ScaledTouchUpButton {
 
@@ -27,9 +26,11 @@ public class ButtonPlay extends ScaledTouchUpButton {
         game.setScreen(new GameScreen());
     }
 
-    public void touch(Vector2 touch, int pointer, Ship ship) {
-        if (super.touchDown(touch,pointer))
-        ship.goUp();
-       // super.touchDown(touch,pointer);
-    }
+  //  public void touch(Vector2 touch, int pointer)//, MainShip mainShip)
+   // {
+  //      if (super.touchDown(touch,pointer))
+     //   mainShip.goUp();
+  //      super.touchDown(touch,pointer);
+  //
+      //  }
 }
