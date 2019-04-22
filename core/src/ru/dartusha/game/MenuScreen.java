@@ -1,6 +1,8 @@
 package ru.dartusha.game;
 
 import com.badlogic.gdx.Game;
+import com.badlogic.gdx.Gdx;
+import com.badlogic.gdx.audio.Music;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.TextureAtlas;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
@@ -8,14 +10,16 @@ import com.badlogic.gdx.math.Vector2;
 
 public class MenuScreen extends BaseScreen {
 
-    private Texture bg, shipTexture;
+    private Texture bg;
     private Background background;
-    public Ship ship;
+   // public  MainShip mainShip;
     private TextureAtlas atlas, menuAtlas;
     private Star starList[];
     private ButtonExit buttonExit;
     private ButtonPlay buttonPlay;
     private Game game;
+  //  private BulletPool bulletPool;
+    Music startMusic;
 
     public MenuScreen(Game game) {
         this.game = game;
@@ -24,28 +28,28 @@ public class MenuScreen extends BaseScreen {
     @Override
     public void show() {
         super.show();
-        //bg = new Texture("background3.jpg");
         bg = new Texture("textures/bg.png");
         background = new Background(new TextureRegion(bg));
-       // shipTexture=new Texture("ship3.png");
-       // ship = new Ship (new TextureRegion(shipTexture));
         menuAtlas=new TextureAtlas("textures/menuAtlas.tpack");
 
         atlas=new TextureAtlas("textures/mainAtlas.tpack");
-        ship = new Ship (atlas,"main_ship");
+      //  bulletPool = new BulletPool();
+      //  mainShip = new MainShip (atlas, bulletPool);
         starList = new Star[256];
         for (int i = 0; i < starList.length; i++) {
             starList[i] = new Star(atlas);
         }
         buttonExit = new ButtonExit(menuAtlas);
         buttonPlay = new ButtonPlay(menuAtlas, game);
+        startMusic = Gdx.audio.newMusic(Gdx.files.internal("sounds/startMusic.mp3"));
+        startMusic.play();
 }
 
     @Override
     public void resize(Rect worldBounds) {
         super.resize(worldBounds);
         background.resize(worldBounds);
-        ship.resize(worldBounds);
+      //  mainShip.resize(worldBounds);
         for (Star star : starList) {
             star.resize(worldBounds);
         }
@@ -60,7 +64,7 @@ public class MenuScreen extends BaseScreen {
         for (Star star : starList) {
             star.draw(batch);
         }
-        ship.draw(batch);
+       // mainShip.draw(batch);
         buttonExit.draw(batch);
         buttonPlay.draw(batch);
         batch.end();
@@ -76,7 +80,7 @@ public class MenuScreen extends BaseScreen {
     }
 
     private void update(float delta) {
-        ship.update(delta);
+      //  mainShip.update(delta);
         for (Star star : starList) {
             star.update(delta);
         }
@@ -87,6 +91,7 @@ public class MenuScreen extends BaseScreen {
         super.dispose();
         bg.dispose();
         atlas.dispose();
+        startMusic.dispose();
     }
 
     @Override
@@ -94,7 +99,7 @@ public class MenuScreen extends BaseScreen {
         //ship.touchDown(touch, pointer);
 
         buttonExit.touchDown(touch, pointer);
-        buttonPlay.touch(touch, pointer,ship);
+        buttonPlay.touchDown(touch, pointer);//,mainShip);
         return false;
     }
 
@@ -108,7 +113,7 @@ public class MenuScreen extends BaseScreen {
 
     @Override
     public boolean keyUp(int keycode) {
-       // ship.keyMove(keycode);
+       // mainShip.keyMove(keycode);
         return false;
     }
 
