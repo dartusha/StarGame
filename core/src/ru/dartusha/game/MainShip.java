@@ -1,62 +1,48 @@
 package ru.dartusha.game;
 
 import com.badlogic.gdx.Input;
+import com.badlogic.gdx.audio.Sound;
 import com.badlogic.gdx.graphics.g2d.TextureAtlas;
-import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.badlogic.gdx.math.Vector2;
 
-
-public class MainShip extends Sprite {
+public class MainShip extends Ship {
 
     private static final int INVALID_POINTER = -1;
-
-    private Rect worldBounds;
-
-    private Vector2 v = new Vector2();
-    private Vector2 v0 = new Vector2(0.5f, 0);
-
-    private BulletPool bulletPool;
-    private TextureRegion bulletRegion;
-    private Vector2 bulletV = new Vector2(0f, 0.5f);
 
     private boolean pressedRight;
     private boolean pressedLeft;
 
     private int rightPointer = INVALID_POINTER;
     private int leftPointer = INVALID_POINTER;
-
-    private float reloadInterval = 0.2f;
-    private float reloadTimer;
     boolean flag=false;
 
-    public MainShip(TextureAtlas atlas, BulletPool bulletPool) {
+    public MainShip(TextureAtlas atlas, BulletPool bulletPool, Sound shootSound) {
         super(atlas.findRegion("main_ship"), 1, 2, 2);
         this.bulletPool = bulletPool;
         this.bulletRegion = atlas.findRegion("bulletMainShip");
+        this.shootSound = shootSound;
         setHeightProportion(0.15f);
+        this.reloadInterval = 0.2f;
+        this.bulletV.set(0f, 0.5f);
+        this.bulletHeight = 0.015f;
+        this.damage = 1;
+        this.v0.set(0.5f, 0);
     }
 
     @Override
     public void resize(Rect worldBounds) {
         super.resize(worldBounds);
-        this.worldBounds = worldBounds;
         setBottom(worldBounds.getBottom() + 0.05f);
-    }
-
-    public MainShip(TextureRegion region) {
-        super(region);
     }
 
     @Override
     public void update(float delta) {
         super.update(delta);
-        pos.mulAdd(v, delta);
         reloadTimer += delta;
         if (reloadTimer >= reloadInterval) {
             reloadTimer = 0f;
             shoot();
         }
-
         if (getRight() > worldBounds.getRight()) {
             setRight(worldBounds.getRight());
             stop();
@@ -65,8 +51,6 @@ public class MainShip extends Sprite {
             setLeft(worldBounds.getLeft());
             stop();
         }
-
-
     }
 
     public boolean keyDown(int keycode) {
@@ -148,11 +132,6 @@ public class MainShip extends Sprite {
             }
         }
         return false;
-    }
-
-    public void shoot() {
-        Bullet bullet = bulletPool.obtain();
-        bullet.set(this, bulletRegion, pos, bulletV, 0.015f, worldBounds, 1);
     }
 
     private void moveRight() {
