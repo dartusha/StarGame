@@ -1,19 +1,23 @@
 package ru.dartusha.game;
 
-import com.badlogic.gdx.graphics.g2d.TextureAtlas;
+import com.badlogic.gdx.audio.Sound;
 
+public class EnemyPool extends SpritesPool<Enemy> {
 
-public class EnemyPool extends SpritesPool<EnemyShip> {
-    TextureAtlas atlas;
-    BulletPool bulletPool;
+    private Rect worldBounds;
+    private BulletPool bulletPool;
+    private Sound shootSound;
+    private MainShip mainShip;
 
-    @Override
-    protected EnemyShip newObject() {
-        return new EnemyShip(atlas,bulletPool);
+    public EnemyPool(BulletPool bulletPool, Sound shootSound, Rect worldBounds, MainShip mainShip) {
+        this.bulletPool = bulletPool;
+        this.shootSound = shootSound;
+        this.worldBounds = worldBounds;
+        this.mainShip = mainShip;
     }
 
-    public void setPoolProperties(TextureAtlas atlas, BulletPool bulletPool){
-        this.atlas=atlas;
-        this.bulletPool=bulletPool;
+    @Override
+    protected Enemy newObject() {
+        return new Enemy(bulletPool, shootSound, worldBounds, mainShip);
     }
 }
