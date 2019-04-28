@@ -23,7 +23,7 @@ public class ButtonPlay extends ScaledTouchUpButton {
 
     @Override
     protected void action() {
-        game.setScreen(new GameScreen());
+        game.setScreen(new GameScreen(game));
     }
 
   //  public void touch(Vector2 touch, int pointer)//, MainShip mainShip)

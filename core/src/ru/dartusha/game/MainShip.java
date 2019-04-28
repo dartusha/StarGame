@@ -16,9 +16,10 @@ public class MainShip extends Ship {
     private int leftPointer = INVALID_POINTER;
     boolean flag=false;
 
-    public MainShip(TextureAtlas atlas, BulletPool bulletPool, Sound shootSound) {
+    public MainShip(TextureAtlas atlas, BulletPool bulletPool, ExplosionPool explosionPool, Sound shootSound) {
         super(atlas.findRegion("main_ship"), 1, 2, 2);
         this.bulletPool = bulletPool;
+        this.explosionPool = explosionPool;
         this.bulletRegion = atlas.findRegion("bulletMainShip");
         this.shootSound = shootSound;
         setHeightProportion(0.15f);
@@ -26,6 +27,7 @@ public class MainShip extends Ship {
         this.bulletV.set(0f, 0.5f);
         this.bulletHeight = 0.015f;
         this.damage = 1;
+        this.hp = 1;
         this.v0.set(0.5f, 0);
     }
 
@@ -132,6 +134,14 @@ public class MainShip extends Ship {
             }
         }
         return false;
+    }
+
+    public boolean isBulletCollision(Rect bullet) {
+        return !(bullet.getRight() < getLeft()
+                || bullet.getLeft() > getRight()
+                || bullet.getBottom() > pos.y
+                || bullet.getTop() < getBottom()
+        );
     }
 
     private void moveRight() {

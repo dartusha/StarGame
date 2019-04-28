@@ -1,5 +1,6 @@
 package ru.dartusha.game;
 
+import com.badlogic.gdx.Game;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.audio.Music;
 import com.badlogic.gdx.audio.Sound;
@@ -8,9 +9,16 @@ import com.badlogic.gdx.graphics.g2d.TextureAtlas;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.badlogic.gdx.math.Vector2;
 
+import java.util.List;
+
 public class GameScreen extends BaseScreen {
 
+    private enum State {PLAYING, PAUSE, GAME_OVER}
+
+    private State state;
+
     private Texture bg;
+    private Texture bg1;
     private Background background;
     private TextureAtlas atlas;
     private Star starList[];
@@ -20,12 +28,19 @@ public class GameScreen extends BaseScreen {
     private BulletPool bulletPool;
     private EnemyPool  enemyPool;
     Music gameMusic;
+    //Music gameOverMusic;
+    private ExplosionPool explosionPool;
 
     private Sound laserSound;
     private Sound bulletSound;
     private Sound explosionSound;
 
     private EnemyGenerator enemyGenerator;
+    private Game game;
+
+    public GameScreen(Game game) {
+        this.game = game;
+    }
 
     @Override
     public void show() {
@@ -42,11 +57,14 @@ public class GameScreen extends BaseScreen {
             starList[i] = new Star(atlas);
         }
         bulletPool = new BulletPool();
-        mainShip = new MainShip(atlas, bulletPool, laserSound);
-        enemyPool = new EnemyPool(bulletPool, bulletSound, worldBounds, mainShip);
+        explosionPool = new ExplosionPool(atlas, explosionSound);
+        mainShip = new MainShip(atlas, bulletPool, explosionPool, laserSound);
+        enemyPool = new EnemyPool(bulletPool, explosionPool, bulletSound, worldBounds, mainShip);
         enemyGenerator = new EnemyGenerator(atlas, enemyPool, worldBounds);
         gameMusic = Gdx.audio.newMusic(Gdx.files.internal("sounds/gameMusic.mp3"));
+        gameMusic.setLooping(true);
         gameMusic.play();
+        state = State.PLAYING;
     }
 
     @Override
@@ -62,60 +80,85 @@ public class GameScreen extends BaseScreen {
         for (Star star : starList) {
             star.update(delta);
         }
-        mainShip.update(delta);
-        bulletPool.updateActiveSprites(delta);
-        enemyPool.updateActiveSprites(delta);
-        enemyGenerator.generate(delta);
+        explosionPool.updateActiveSprites(delta);
+        if (state == State.PLAYING) {
+            mainShip.update(delta);
+            enemyGenerator.generate(delta);
+            bulletPool.updateActiveSprites(delta);
+            enemyPool.updateActiveSprites(delta);
+        }
+    }
+
+    public void gameOver(){
+        state = State.GAME_OVER;
+       // System.out.println("test");
+      //  bg1 = new Texture("textures/bg.png");
+      //  background = new Background(new TextureRegion(bg1));
+      //  background.setScale(0.5f);
+        gameMusic.stop();
+        game.setScreen(new GameoverScreen(game));
+      //  gameOverMusic.play();
     }
 
     private void checkCollisions() {
-        for (Enemy el:enemyPool.getActiveObjects()) {
-            if (!(mainShip.isOutside(el))){
-                System.out.println("Вы поймали вражеский кораблик");
-                el.hp--;
-                if (el.hp==0){
-                    el.destroy();
-                    explosionSound.play();
-                }
+        if (state != State.PLAYING) {
+            return;
+        }
+        List<Enemy> enemyList = enemyPool.getActiveObjects();
+        for (Enemy enemy : enemyList) {
+            if (enemy.isDestroyed()) {
+                continue;
+            }
+            float minDist = enemy.getHalfWidth() + mainShip.getHalfWidth();
+            if (enemy.pos.dst(mainShip.pos) < minDist) {
+                enemy.destroy();
+                mainShip.destroy();
+                gameOver();
+                return;
             }
         }
 
-        for (Bullet el:bulletPool.getActiveObjects()) {
-            if (!(mainShip.isOutside(el))&&(!el.getOwner().equals(mainShip))){
-                System.out.println("Вы словили пульку");
-                el.destroy();
-                mainShip.hp--;
-                if (mainShip.hp==0){
-                    mainShip.destroy();
-                    explosionSound.play();
+        List<Bullet> bulletList = bulletPool.getActiveObjects();
+
+        for (Bullet bullet : bulletList) {
+            if (bullet.isDestroyed()) {
+                continue;
+            }
+            for (Bullet bulletOther:bulletPool.getActiveObjects()) {
+                if ((!bullet.getOwner().equals(bulletOther.getOwner()))&&(!bullet.isOutside(bulletOther))){
+                    bullet.destroy();
+                    bulletOther.destroy();
                 }
             }
-            for (Bullet elBl:bulletPool.getActiveObjects()) {
-                if ((!el.getOwner().equals(elBl.getOwner()))&&(!el.isOutside(elBl))){
-                    el.destroy();
-                    elBl.destroy();
-                    System.out.println("Вы уничтожили чужую пульку");
-                }
-            }
-            for (Enemy enEl:enemyPool.getActiveObjects()) {
-                if (!(enEl.isOutside(el))&&(el.getOwner().equals(mainShip))){
-                    System.out.println("Ваша пуля влетела во вражеский кораблик");
-                    el.destroy();
-                    enEl.hp--;
-                    if (enEl.hp==0){
-                        enEl.destroy();
-                        explosionSound.play();
+
+            if (bullet.getOwner() == mainShip) {
+                for (Enemy enemy : enemyList) {
+                    if (enemy.isDestroyed()) {
+                        continue;
+                    }
+                    if (enemy.isBulletCollision(bullet)) {
+                        enemy.damage(bullet.getDamage());
+                        bullet.destroy();
+                        return;
                     }
                 }
+            } else {
+                if (mainShip.isBulletCollision(bullet)) {
+                    mainShip.damage(bullet.getDamage());
+                    if (mainShip.isDestroyed()) {
+                        gameOver();
+                    }
+                    bullet.destroy();
+                    return;
+                }
             }
-
         }
-
     }
 
     private void freeAllDestroyedSprites() {
         bulletPool.freeAllDestroyedActiveSprites();
         enemyPool.freeAllDestroyedActiveSprites();
+        explosionPool.freeAllDestroyedActiveSprites();
     }
 
     private void draw() {
@@ -124,13 +167,15 @@ public class GameScreen extends BaseScreen {
         for (Star star : starList) {
             star.draw(batch);
         }
-        if (!mainShip.isDestroyed()) {
+        if (state == State.PLAYING) {
             mainShip.draw(batch);
+            bulletPool.drawActiveSprites(batch);
+            enemyPool.drawActiveSprites(batch);
         }
-        bulletPool.drawActiveSprites(batch);
-        enemyPool.drawActiveSprites(batch);
+        explosionPool.drawActiveSprites(batch);
         batch.end();
     }
+
     @Override
     public void resize(Rect worldBounds) {
         super.resize(worldBounds);
@@ -138,7 +183,25 @@ public class GameScreen extends BaseScreen {
         for (Star star : starList) {
             star.resize(worldBounds);
         }
-        mainShip.resize(worldBounds);
+        if (state == State.PLAYING) {
+            mainShip.resize(worldBounds);
+        }
+    }
+
+    @Override
+    public void pause() {
+        super.pause();
+        if (state == State.PLAYING) {
+            state = State.PAUSE;
+        }
+    }
+
+    @Override
+    public void resume() {
+        super.resume();
+        if (state == State.PAUSE) {
+            state = State.PLAYING;
+        }
     }
 
     @Override
@@ -147,6 +210,7 @@ public class GameScreen extends BaseScreen {
         bg.dispose();
         atlas.dispose();
         bulletPool.dispose();
+        explosionPool.dispose();
         gameMusic.dispose();
         enemyPool.dispose();
         laserSound.dispose();
@@ -156,28 +220,33 @@ public class GameScreen extends BaseScreen {
 
     @Override
     public boolean keyDown(int keycode) {
-        mainShip.keyDown(keycode);
+        if (state == State.PLAYING) {
+            mainShip.keyDown(keycode);
+        }
         return false;
     }
 
     @Override
     public boolean keyUp(int keycode) {
-        mainShip.keyUp(keycode);
-        if (keycode==62){
-            laserSound.play();
+        if (state == State.PLAYING) {
+            mainShip.keyUp(keycode);
         }
         return false;
     }
 
     @Override
     public boolean touchDown(Vector2 touch, int pointer) {
-        mainShip.touchDown(touch, pointer);
+        if (state == State.PLAYING) {
+            mainShip.touchDown(touch, pointer);
+        }
         return false;
     }
 
     @Override
     public boolean touchUp(Vector2 touch, int pointer) {
-        mainShip.touchUp(touch, pointer);
+        if (state == State.PLAYING) {
+            mainShip.touchUp(touch, pointer);
+        }
         return false;
     }
 }
