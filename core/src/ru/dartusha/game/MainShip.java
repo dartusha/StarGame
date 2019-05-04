@@ -7,6 +7,7 @@ import com.badlogic.gdx.math.Vector2;
 
 public class MainShip extends Ship {
 
+    private static final int HP = 100;
     private static final int INVALID_POINTER = -1;
 
     private boolean pressedRight;
@@ -27,8 +28,14 @@ public class MainShip extends Ship {
         this.bulletV.set(0f, 0.5f);
         this.bulletHeight = 0.015f;
         this.damage = 1;
-        this.hp = 1;
+        this.hp = HP;
         this.v0.set(0.5f, 0);
+    }
+
+    public void reset() {
+        flushDestroy();
+        hp = HP;
+        pos.x = worldBounds.pos.x;
     }
 
     @Override
@@ -159,6 +166,11 @@ public class MainShip extends Ship {
     public void goUp(){
         v.set(0f,0.068f);
         flag=true;
+    }
+
+    public void heal(int heal) {
+        if (hp+heal<=HP)
+            hp += heal;
     }
 
 }

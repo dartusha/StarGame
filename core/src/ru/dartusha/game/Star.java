@@ -5,7 +5,7 @@ import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.badlogic.gdx.math.Vector2;
 
 public class Star extends Sprite {
-    private Vector2 v;
+    public Vector2 v;
     private Rect worldBounds;
 
     public Star(TextureAtlas atlas){
@@ -28,7 +28,11 @@ public class Star extends Sprite {
     @Override
     public void update(float delta){
         super.update(delta);
-        pos.mulAdd(v,delta);
+        pos.mulAdd(v, delta);
+        checkBounds();
+    }
+
+    protected void checkBounds() {
         if (getRight() < worldBounds.getLeft()) setLeft(worldBounds.getRight());
         if (getLeft() > worldBounds.getRight()) setRight(worldBounds.getLeft());
         if (getTop() < worldBounds.getBottom()) setBottom(worldBounds.getTop());
