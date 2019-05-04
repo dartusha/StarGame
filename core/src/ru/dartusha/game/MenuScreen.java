@@ -47,11 +47,11 @@ public class MenuScreen extends BaseScreen {
         startMusic = Gdx.audio.newMusic(Gdx.files.internal("sounds/startMusic.mp3"));
         startMusic.play();
         font = new Font("font/caption3.fnt", "font/caption3.png");
-        font.setFontSize(0.08f);
+        font.setFontSize(0.06f);
 }
 
     private void printInfo() {
-        font.draw(batch, caption, worldBounds.getLeft()+0.03f, worldBounds.getTop()-0.4f);
+        font.draw(batch, caption, worldBounds.getHalfWidth()+worldBounds.getLeft(), worldBounds.getTop()-0.4f,Align.center);
     }
     @Override
     public void resize(Rect worldBounds) {
