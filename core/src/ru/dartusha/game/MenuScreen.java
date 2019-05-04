@@ -7,8 +7,10 @@ import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.TextureAtlas;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.badlogic.gdx.math.Vector2;
+import com.badlogic.gdx.utils.Align;
 
 public class MenuScreen extends BaseScreen {
+    private static final String caption = "STAR GAME";
 
     private Texture bg;
     private Background background;
@@ -20,6 +22,7 @@ public class MenuScreen extends BaseScreen {
     private Game game;
   //  private BulletPool bulletPool;
     Music startMusic;
+    private Font font;
 
     public MenuScreen(Game game) {
         this.game = game;
@@ -43,8 +46,13 @@ public class MenuScreen extends BaseScreen {
         buttonPlay = new ButtonPlay(menuAtlas, game);
         startMusic = Gdx.audio.newMusic(Gdx.files.internal("sounds/startMusic.mp3"));
         startMusic.play();
+        font = new Font("font/caption3.fnt", "font/caption3.png");
+        font.setFontSize(0.06f);
 }
 
+    private void printInfo() {
+        font.draw(batch, caption, worldBounds.getHalfWidth()+worldBounds.getLeft(), worldBounds.getTop()-0.4f,Align.center);
+    }
     @Override
     public void resize(Rect worldBounds) {
         super.resize(worldBounds);
@@ -67,6 +75,7 @@ public class MenuScreen extends BaseScreen {
        // mainShip.draw(batch);
         buttonExit.draw(batch);
         buttonPlay.draw(batch);
+        printInfo();
         batch.end();
     }
 

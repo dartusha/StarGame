@@ -60,6 +60,8 @@ public class Ship extends Sprite {
     }
 
     public void damage(int damage) {
+       // System.out.println("HP:"+hp);
+       // System.out.println("damage:"+damage);
         frame = 1;
         damageAnimateTimer = 0f;
         hp -= damage;
@@ -68,6 +70,8 @@ public class Ship extends Sprite {
         }
     }
 
+
+
     @Override
     public void destroy() {
         super.destroy();
@@ -75,8 +79,16 @@ public class Ship extends Sprite {
         hp = 0;
     }
 
+    public int getHp() {
+        return hp;
+    }
+
     private void boom() {
         Explosion explosion = explosionPool.obtain();
         explosion.set(this.getHeight(), this.pos);
+    }
+
+    public Vector2 getV() {
+        return v;
     }
 }
